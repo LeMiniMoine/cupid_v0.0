@@ -152,5 +152,6 @@ var updateTeamChangeList = function (message) {
     });
 
     console.log('Team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
+    console.log('Team change list: ', teamChanges);
 };
 
