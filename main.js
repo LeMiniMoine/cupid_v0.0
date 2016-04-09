@@ -18,6 +18,8 @@ var user = 'bob';
 var auth = 'Bearer M2NiOTU3NTAtY2YzMi00MWU4LTk4NjItNWFiOTNlZWJiMWFiMjhlYjQ1Y2QtY2Fj';
 var roomId = 'Y2lzY29zcGFyazovL3VzL1JPT00vMDA2ZTdiMjAtZmQxMS0xMWU1LTg2NDUtOWZjNGE1MmNmMGQ5';
 var client = new Client();
+var user = 'mike';
+var auth = 'Bearer N2I5YzMxMDMtMTQ5NS00N2MwLThkYzItZjU4OWQ3YmFhZjMwNzVmNDljMzYtYzc3';
 
 var teamChanges = [];
 
