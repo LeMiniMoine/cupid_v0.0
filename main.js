@@ -21,7 +21,6 @@ var auth = 'Bearer N2I5YzMxMDMtMTQ5NS00N2MwLThkYzItZjU4OWQ3YmFhZjMwNzVmNDljMzYtY
 
 var teamChanges = [];
 
-
 var args = {
     headers: {
         'Content-type': 'application/json; charset=utf-8',
@@ -100,28 +99,35 @@ var getMessageFromCisco = function (messageId) {
 
 
 var shouldSendNewChanges = function (changes) {
+    console.log('-------LOCAL CHANGE MADE----------');
     var myPreviousChangeList = teamChanges.filter(function (change) {
         return change.user == user;
     }).map(function (change) {
         return change.file
     });
+    console.log('previous local change list: ', myPreviousChangeList);
 
     var myCurrentChangeList = changes.files.map(function (element) {
         return {file: element.file}
     });
+    console.log('current local list: ', myCurrentChangeList);
 
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(myCurrentChangeList, myPreviousChangeList);
+    console.log('files to add: ', fileChangesToAdd);
 
     fileChangesToAdd.forEach(function (file) {
         teamChanges.push({user: user, file: file.file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(myPreviousChangeList, myCurrentChangeList);
+    console.log('files to remove: ', fileChangesToRemove);
 
     fileChangesToRemove.forEach(function (file) {
         teamChanges.slice(teamChanges.indexOf({user: user, file: file.file}));
     });
 
+    console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
+    console.log('Team change list: ', teamChanges);
     console.log('Should send changes: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
 
 /*    var mergeConflictChange = checkForMergeConflict(teamChanges);
@@ -144,6 +150,7 @@ var getObjectsPresentInArray1NotInArray2 = function (array1, array2) {
 };
 
 var updateTeamChangeList = function (message) {
+    console.log('-------REMOTE CHANGE MADE FROM USER '.concat(message.user).concat('----------'));
     var remoteUser = message.user;
     var previousChangeListFromUser = teamChanges.filter(function (change) {
         return change.user == remoteUser;
@@ -158,11 +165,14 @@ var updateTeamChangeList = function (message) {
     console.log('current change list from user: ', currentChangeListForUser);
 
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(currentChangeListForUser, previousChangeListFromUser);
-    console.log('files to add: ', fileChangesToAdd);
+    console.log('files to add from user: ', fileChangesToAdd);
 
     fileChangesToAdd.forEach(function (file) {
         teamChanges.push({user: remoteUser, file: file.file});
     });
+
+    var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(previousChangeListFromUser, currentChangeListForUser);
+    console.log('files to remove from user: ', fileChangesToRemove);
 
     fileChangesToRemove.forEach(function (file) {
         teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file.file}));
