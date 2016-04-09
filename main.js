@@ -162,6 +162,14 @@ var updateTeamChangeList = function (message) {
 };
 
 var checkForMergeConflict = function (teamChangeList) {
+    var counter = {};
+
+    teamChangeList.forEach(function(obj) {
+        var key = JSON.stringify(obj);
+        counter[key] = (counter[key] || 0) + 1;
+        console.log(counter);
+    });
+
     return false;
 };
 
