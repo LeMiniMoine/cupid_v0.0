@@ -55,10 +55,11 @@ ngrok.connect(
 
 chokidar.watch('.', {ignored: '.idea'}).on('change', function (path, event) {
     simpleGit.diffSummary(function (error, response) {
+        var files = response.files.map(function(file) {return file.file});
 
         var changes = {
             user: user,
-            files: response.files
+            files: files
         };
 
         if (shouldSendNewChanges(changes)) {
@@ -108,7 +109,7 @@ var shouldSendNewChanges = function (changes) {
     console.log('previous local change list: ', myPreviousChangeList);
 
     var myCurrentChangeList = changes.files.map(function (element) {
-        return {file: element.file}
+        return {file: element.file.file}
     });
     console.log('current local list: ', myCurrentChangeList);
 
@@ -140,6 +141,7 @@ var shouldSendNewChanges = function (changes) {
 };
 
 var getObjectsPresentInArray1NotInArray2 = function (array1, array2) {
+
     var bIds = {};
     array2.forEach(function (obj) {
         bIds[obj.id] = obj;
