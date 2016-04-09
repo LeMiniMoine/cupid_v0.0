@@ -109,9 +109,7 @@ var shouldSendNewChanges = function (changes) {
     });
     console.log('previous local change list: ', myPreviousChangeList);
 
-    var myCurrentChangeList = changes.files.map(function (element) {
-        return {file: element.file}
-    });
+    var myCurrentChangeList = changes.files;
     console.log('current local list: ', myCurrentChangeList);
 
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(myCurrentChangeList, myPreviousChangeList);
@@ -137,12 +135,10 @@ var shouldSendNewChanges = function (changes) {
         testSendSms();
         //mainWindow.show();
     }*/
-
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
 
 var getObjectsPresentInArray1NotInArray2 = function (array1, array2) {
-
     var bIds = {};
     array2.forEach(function (obj) {
         bIds[obj.id] = obj;
@@ -161,10 +157,9 @@ var updateTeamChangeList = function (message) {
         return change.file
     });
     console.log('previous change list from user: ', previousChangeListFromUser);
+    console.log('message changes: ', message);
 
-    var currentChangeListForUser = message.files.map(function (element) {
-        return {file: element.file}
-    });
+    var currentChangeListForUser = message.files;
     console.log('current change list from user: ', currentChangeListForUser);
 
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(currentChangeListForUser, previousChangeListFromUser);
