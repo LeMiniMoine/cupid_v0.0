@@ -109,16 +109,18 @@ var shouldSendNewChanges = function(changes) {
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(myCurrentChangeList, myPreviousChangeList);
 
     fileChangesToAdd.forEach(function(file) {
-        teamChanges.push({user: user, file: file});
+        teamChanges.push({user: user, file: file.file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(myPreviousChangeList, myCurrentChangeList);
 
     fileChangesToRemove.forEach(function(file) {
-        teamChanges.slice(teamChanges.indexOf({user: user, file: file}));
+        teamChanges.slice(teamChanges.indexOf({user: user, file: file.file}));
     });
 
     console.log('Should send changes: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
+
+    var mergeConflict = checkForMergeConflict(teamChanges);
 
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
@@ -133,6 +135,8 @@ var getObjectsPresentInArray1NotInArray2 = function(array1, array2) {
     });
 };
 
+
+
 var updateTeamChangeList = function (message) {
     var remoteUser = message.user;
     var previousChangeListFromUser = teamChanges.filter(function (change) {
@@ -144,16 +148,20 @@ var updateTeamChangeList = function (message) {
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(currentChangeListForUser, previousChangeListFromUser);
 
     fileChangesToAdd.forEach(function(file) {
-        teamChanges.push({user: remoteUser, file: file});
+        teamChanges.push({user: remoteUser, file: file.file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(previousChangeListFromUser, currentChangeListForUser);
 
     fileChangesToRemove.forEach(function(file) {
-        teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file}));
+        teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file.file}));
     });
 
     console.log('Team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
     console.log('Team change list: ', teamChanges);
+};
+
+var checkForMergeConflict = function (teamChangeList) {
+    return false;
 };
 
