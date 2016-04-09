@@ -125,13 +125,11 @@ var shouldSendNewChanges = function (changes) {
 
     console.log('Should send changes: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
 
-    var mergeConflictChange = checkForMergeConflict(teamChanges);
+/*    var mergeConflictChange = checkForMergeConflict(teamChanges);
     if (true) {
         testSendSms();
         //mainWindow.show();
-    }
-
-
+    }*/
 
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
