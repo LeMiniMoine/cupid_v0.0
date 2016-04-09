@@ -120,7 +120,10 @@ var shouldSendNewChanges = function(changes) {
 
     console.log('Should send changes: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
 
-    var mergeConflict = checkForMergeConflict(teamChanges);
+    var mergeConflictChange = checkForMergeConflict(teamChanges);
+    if(mergeConflictChange) {
+        mainWindow.show = true;
+    }
 
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
@@ -134,8 +137,6 @@ var getObjectsPresentInArray1NotInArray2 = function(array1, array2) {
         return !(obj.id in bIds);
     });
 };
-
-
 
 var updateTeamChangeList = function (message) {
     var remoteUser = message.user;
@@ -162,14 +163,14 @@ var updateTeamChangeList = function (message) {
 };
 
 var checkForMergeConflict = function (teamChangeList) {
-    var counter = {};
-
-    teamChangeList.forEach(function(obj) {
-        var key = JSON.stringify(obj);
-        counter[key] = (counter[key] || 0) + 1;
-        console.log(counter);
+    var filesList = teamChangeList.map(function (obj) {return obj.file});
+    filesList.forEach(function (element) {
+        if(filesList.filter(function(file) {return file == element}).size > 1) {
+            return teamChangeList.filter(function(change) {
+                return change.user != user;
+            });
+        }
     });
-
-    return false;
 };
+
 
