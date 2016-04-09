@@ -14,8 +14,8 @@ var ngrok = require('ngrok');
 var bodyParser = require('body-parser');
 var lodash = require('lodash');
 
-var user = 'mike';
-var auth = 'Bearer N2I5YzMxMDMtMTQ5NS00N2MwLThkYzItZjU4OWQ3YmFhZjMwNzVmNDljMzYtYzc3';
+var user = 'bob';
+var auth = 'Bearer M2NiOTU3NTAtY2YzMi00MWU4LTk4NjItNWFiOTNlZWJiMWFiMjhlYjQ1Y2QtY2Fj';
 var roomId = 'Y2lzY29zcGFyazovL3VzL1JPT00vMDA2ZTdiMjAtZmQxMS0xMWU1LTg2NDUtOWZjNGE1MmNmMGQ5';
 var client = new Client();
 
@@ -150,18 +150,19 @@ var updateTeamChangeList = function (message) {
     }).map(function (change) {
         return change.file
     });
+    console.log('previous change list from user: ', previousChangeListFromUser);
 
     var currentChangeListForUser = message.files.map(function (element) {
         return {file: element.file}
     });
+    console.log('current change list from user: ', currentChangeListForUser);
 
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(currentChangeListForUser, previousChangeListFromUser);
+    console.log('files to add: ', fileChangesToAdd);
 
     fileChangesToAdd.forEach(function (file) {
         teamChanges.push({user: remoteUser, file: file.file});
     });
-
-    var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(previousChangeListFromUser, currentChangeListForUser);
 
     fileChangesToRemove.forEach(function (file) {
         teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file.file}));
@@ -194,6 +195,3 @@ var testSendSms = function () {
         console.log(data);
     });
 };
-
-
-
