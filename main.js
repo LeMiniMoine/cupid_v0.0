@@ -69,6 +69,7 @@ chokidar.watch('.', {ignored: '.idea'}).on('change', function (path, event) {
                 'text': JSON.stringify(changes)
             };
 
+
             client.post('https://api.ciscospark.com/v1/messages', args, function (data, response) {
 
             });
@@ -109,7 +110,7 @@ var shouldSendNewChanges = function (changes) {
     console.log('previous local change list: ', myPreviousChangeList);
 
     var myCurrentChangeList = changes.files.map(function (element) {
-        return {file: element.file.file}
+        return {file: element.file}
     });
     console.log('current local list: ', myCurrentChangeList);
 
@@ -117,14 +118,14 @@ var shouldSendNewChanges = function (changes) {
     console.log('files to add: ', fileChangesToAdd);
 
     fileChangesToAdd.forEach(function (file) {
-        teamChanges.push({user: user, file: file.file});
+        teamChanges.push({user: user, file: file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(myPreviousChangeList, myCurrentChangeList);
     console.log('files to remove: ', fileChangesToRemove);
 
     fileChangesToRemove.forEach(function (file) {
-        teamChanges.slice(teamChanges.indexOf({user: user, file: file.file}));
+        teamChanges.slice(teamChanges.indexOf({user: user, file: file}));
     });
 
     console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
@@ -170,14 +171,14 @@ var updateTeamChangeList = function (message) {
     console.log('files to add from user: ', fileChangesToAdd);
 
     fileChangesToAdd.forEach(function (file) {
-        teamChanges.push({user: remoteUser, file: file.file});
+        teamChanges.push({user: remoteUser, file: file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(previousChangeListFromUser, currentChangeListForUser);
     console.log('files to remove from user: ', fileChangesToRemove);
 
     fileChangesToRemove.forEach(function (file) {
-        teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file.file}));
+        teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file}));
     });
 
     console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
