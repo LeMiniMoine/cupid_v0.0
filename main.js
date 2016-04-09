@@ -53,7 +53,7 @@ ngrok.connect(
         });
     });
 
-chokidar.watch('.', {ignored: '.idea'}).on('change', function (path, event) {
+chokidar.watch('.', {ignored: /^\.idea|^\.git/gm}).on('change', function (path, event) {
     simpleGit.diffSummary(function (error, response) {
         var files = response.files.map(function(file) {return file.file});
 
@@ -99,7 +99,6 @@ var getMessageFromCisco = function (messageId) {
     })
 };
 
-
 var shouldSendNewChanges = function (changes) {
     console.log('-------LOCAL CHANGE MADE----------');
     var myPreviousChangeList = teamChanges.filter(function (change) {
@@ -135,6 +134,7 @@ var shouldSendNewChanges = function (changes) {
         testSendSms();
         //mainWindow.show();
     }*/
+
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
 
