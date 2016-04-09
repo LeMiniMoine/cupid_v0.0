@@ -94,7 +94,6 @@ app.on('ready', function () {
 var getMessageFromCisco = function (messageId) {
     client.get('https://api.ciscospark.com/v1/messages/'.concat(messageId), args, function (data, response) {
         var receivedChanges = JSON.parse(data.text);
-        //console.log(receivedChanges);
         updateTeamChangeList(receivedChanges);
     })
 };
@@ -168,7 +167,7 @@ var updateTeamChangeList = function (message) {
         teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file.file}));
     });
 
-    console.log('Team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
+    console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
     console.log('Team change list: ', teamChanges);
 };
 
