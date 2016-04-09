@@ -22,7 +22,6 @@ var client = new Client();
 var teamChanges = [];
 
 
-
 var args = {
     headers: {
         'Content-type': 'application/json; charset=utf-8',
@@ -46,7 +45,7 @@ ngrok.connect(
         client.post('https://api.ciscospark.com/v1/webhooks', args, function (data, response) {
             console.log('Webhook created');
 
-            restApp.use( bodyParser.json() );
+            restApp.use(bodyParser.json());
             restApp.post('/', function (req, res) {
                 getMessageFromCisco(req.body.data.id);
             });
@@ -63,7 +62,7 @@ chokidar.watch('.', {ignored: '.idea'}).on('change', function (path, event) {
             files: response.files
         };
 
-        if(shouldSendNewChanges(changes)) {
+        if (shouldSendNewChanges(changes)) {
             console.log('Sending new changes...');
             args.data = {
                 'roomId': roomId,
@@ -78,6 +77,7 @@ chokidar.watch('.', {ignored: '.idea'}).on('change', function (path, event) {
 });
 
 var mainWindow = null;
+var alertWindow = null;
 
 app.on('ready', function () {
     mainWindow = new BrowserWindow({
@@ -92,48 +92,56 @@ app.on('ready', function () {
 });
 
 var getMessageFromCisco = function (messageId) {
-    client.get('https://api.ciscospark.com/v1/messages/'.concat(messageId), args, function(data, response) {
+    client.get('https://api.ciscospark.com/v1/messages/'.concat(messageId), args, function (data, response) {
         var receivedChanges = JSON.parse(data.text);
-        console.log(receivedChanges);
+        //console.log(receivedChanges);
         updateTeamChangeList(receivedChanges);
     })
 };
 
-var shouldSendNewChanges = function(changes) {
+
+var shouldSendNewChanges = function (changes) {
     var myPreviousChangeList = teamChanges.filter(function (change) {
         return change.user == user;
-    }).map(function (change) {return change.file});
+    }).map(function (change) {
+        return change.file
+    });
 
-    var myCurrentChangeList = changes.files.map(function(element) {return {file:element.file}});
+    var myCurrentChangeList = changes.files.map(function (element) {
+        return {file: element.file}
+    });
 
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(myCurrentChangeList, myPreviousChangeList);
 
-    fileChangesToAdd.forEach(function(file) {
+    fileChangesToAdd.forEach(function (file) {
         teamChanges.push({user: user, file: file.file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(myPreviousChangeList, myCurrentChangeList);
 
-    fileChangesToRemove.forEach(function(file) {
+    fileChangesToRemove.forEach(function (file) {
         teamChanges.slice(teamChanges.indexOf({user: user, file: file.file}));
     });
 
     console.log('Should send changes: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
 
     var mergeConflictChange = checkForMergeConflict(teamChanges);
-    if(mergeConflictChange) {
-        mainWindow.show = true;
+    if (true) {
+        testSendSms();
+        //mainWindow.show();
     }
+
+
 
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
 
-var getObjectsPresentInArray1NotInArray2 = function(array1, array2) {
+var getObjectsPresentInArray1NotInArray2 = function (array1, array2) {
     var bIds = {};
-    array2.forEach(function(obj){
+    array2.forEach(function (obj) {
         bIds[obj.id] = obj;
     });
-    return array1.filter(function(obj){
+    return array1.filter(function (obj) {
         return !(obj.id in bIds);
     });
 };
@@ -142,19 +150,23 @@ var updateTeamChangeList = function (message) {
     var remoteUser = message.user;
     var previousChangeListFromUser = teamChanges.filter(function (change) {
         return change.user == remoteUser;
-    }).map(function (change) {return change.file});
+    }).map(function (change) {
+        return change.file
+    });
 
-    var currentChangeListForUser = message.files.map(function(element) {return {file:element.file}});
+    var currentChangeListForUser = message.files.map(function (element) {
+        return {file: element.file}
+    });
 
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(currentChangeListForUser, previousChangeListFromUser);
 
-    fileChangesToAdd.forEach(function(file) {
+    fileChangesToAdd.forEach(function (file) {
         teamChanges.push({user: remoteUser, file: file.file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(previousChangeListFromUser, currentChangeListForUser);
 
-    fileChangesToRemove.forEach(function(file) {
+    fileChangesToRemove.forEach(function (file) {
         teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file.file}));
     });
 
@@ -163,14 +175,28 @@ var updateTeamChangeList = function (message) {
 };
 
 var checkForMergeConflict = function (teamChangeList) {
-    var filesList = teamChangeList.map(function (obj) {return obj.file});
+    var filesList = teamChangeList.map(function (obj) {
+        return obj.file
+    });
     filesList.forEach(function (element) {
-        if(filesList.filter(function(file) {return file == element}).size > 1) {
-            return teamChangeList.filter(function(change) {
+        if (filesList.filter(function (file) {
+            return file == element
+        }).size > 1) {
+            return teamChangeList.filter(function (change) {
                 return change.user != user;
             });
         }
     });
 };
+
+var testSendSms = function () {
+    var args = {
+        headers: {'Content-type': 'application/x-www-form-urlencoded'}
+    , data: 'api_secret=d82051cedc9ad50e6348705c51125be0&number=0032472260967&subject=Test&body=test'};
+    client.post('https://api4.apidaze.io/7b9bc7b4/sms/send', args, function(data, response) {
+        console.log(data);
+    });
+};
+
 
 
