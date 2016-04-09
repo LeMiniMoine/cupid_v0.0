@@ -7,9 +7,18 @@ var app = require('app');
 var BrowserWindow = require('browser-window');
 var chokidar = require('chokidar');
 var hound = require('hound');
+var simpleGit = require('simple-git')();
 
-chokidar.watch('./.git').on('change', function (event, path) {
-    console.log(event, path);
+chokidar.watch('.'/*, {ignored: /[\/\\]\./}*/).on('change', function (path, event) {
+    console.log('Change on path: ' + path);
+    console.log(event);
+    simpleGit.diff(['--stat'], function() {});
+    //console.log('Chosen output: ', gitDiff);
+    //console.log('Full output: ', simpleGit.diff());
+});
+
+chokidar.watch('./.git').on('change', function (path, event) {
+    console.log('Change in git: ', event);
 });
 
 var mainWindow = null;
@@ -27,21 +36,4 @@ app.on('ready', function() {
     });
 
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
-
-    var watcher = chokidar.watch('file', {ignored: /^\./, persistent: true});
-
-    watcher
-        .on('add', function(path) {console.log('File', path, 'has been added');})
-        .on('change', function(path) {console.log('File', path, 'has been changed');})
-        .on('unlink', function(path) {console.log('File', path, 'has been removed');})
-        .on('error', function(error) {console.error('Error happened', error);})
-        .on('raw', function(event, path, details) { log('Raw event info:', event, path, details); });
-});
-console.log('start...');
-
-var watcher2 = hound.watch('./.git');
-
-
-watcher2.on('change', function(file, stats) {
-    console.log(file + ' was changed')
 });
