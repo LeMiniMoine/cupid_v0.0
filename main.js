@@ -21,6 +21,8 @@ var client = new Client();
 
 var teamChanges = [];
 
+
+
 var args = {
     headers: {
         'Content-type': 'application/json; charset=utf-8',
@@ -142,13 +144,13 @@ var updateTeamChangeList = function (message) {
     var fileChangesToAdd = getObjectsPresentInArray1NotInArray2(currentChangeListForUser, previousChangeListFromUser);
 
     fileChangesToAdd.forEach(function(file) {
-        teamChanges.push({user: user, file: file});
+        teamChanges.push({user: remoteUser, file: file});
     });
 
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(previousChangeListFromUser, currentChangeListForUser);
 
     fileChangesToRemove.forEach(function(file) {
-        teamChanges.slice(teamChanges.indexOf({user: user, file: file}));
+        teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file}));
     });
 
     console.log('Team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
