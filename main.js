@@ -149,8 +149,8 @@ var getObjectsPresentInArray1NotInArray2 = function (array1, array2) {
 };
 
 var updateTeamChangeList = function (message) {
-    console.log('-------REMOTE CHANGE MADE FROM USER '.concat(message.user).concat('----------'));
     var remoteUser = message.user;
+    console.log('-------REMOTE CHANGE MADE FROM USER '.concat(remoteUser).concat('----------'));
     var previousChangeListFromUser = teamChanges.filter(function (change) {
         return change.user == remoteUser;
     }).map(function (change) {
@@ -173,7 +173,7 @@ var updateTeamChangeList = function (message) {
     console.log('files to remove from user: ', fileChangesToRemove);
 
     var changesToRemove = fileChangesToRemove.map(function (fileChange) {
-        return {user: user, file: fileChange}
+        return {user: remoteUser, file: fileChange}
     });
 
     lodash.pull(teamChanges, changesToRemove);
