@@ -55,7 +55,9 @@ ngrok.connect(
 
 chokidar.watch('.', {ignored: /^\.idea|^\.git/gm}).on('change', function (path, event) {
     simpleGit.diffSummary(function (error, response) {
-        var files = response.files.map(function(file) {return file.file});
+        var files = response.files.map(function (file) {
+            return file.file
+        });
 
         var changes = {
             user: user,
@@ -121,30 +123,28 @@ var shouldSendNewChanges = function (changes) {
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(myPreviousChangeList, myCurrentChangeList);
     console.log('files to remove: ', fileChangesToRemove);
 
-    fileChangesToRemove.forEach(function (file) {
-        teamChanges.slice(teamChanges.indexOf({user: user, file: file}));
+    var changesToRemove = fileChangesToRemove.map(function (fileChange) {
+        return {user: user, file: fileChange}
     });
+
+    lodash.pull(teamChanges, changesToRemove);
 
     console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
     console.log('Team change list: ', teamChanges);
     console.log('Should send changes: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
 
-/*    var mergeConflictChange = checkForMergeConflict(teamChanges);
-    if (true) {
-        testSendSms();
-        //mainWindow.show();
-    }*/
+    /*    var mergeConflictChange = checkForMergeConflict(teamChanges);
+     if (true) {
+     testSendSms();
+     //mainWindow.show();
+     }*/
 
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
 
 var getObjectsPresentInArray1NotInArray2 = function (array1, array2) {
-    var bIds = {};
-    array2.forEach(function (obj) {
-        bIds[obj.id] = obj;
-    });
-    return array1.filter(function (obj) {
-        return !(obj.id in bIds);
+    return array1.filter(function (element) {
+        return !array2.includes(element);
     });
 };
 
@@ -172,9 +172,11 @@ var updateTeamChangeList = function (message) {
     var fileChangesToRemove = getObjectsPresentInArray1NotInArray2(previousChangeListFromUser, currentChangeListForUser);
     console.log('files to remove from user: ', fileChangesToRemove);
 
-    fileChangesToRemove.forEach(function (file) {
-        teamChanges.slice(teamChanges.indexOf({user: remoteUser, file: file}));
+    var changesToRemove = fileChangesToRemove.map(function (fileChange) {
+        return {user: user, file: fileChange}
     });
+
+    lodash.pull(teamChanges, changesToRemove);
 
     console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
     console.log('Team change list: ', teamChanges);
@@ -197,9 +199,8 @@ var checkForMergeConflict = function (teamChangeList) {
 
 var testSendSms = function () {
     var args = {
-        headers: {'Content-type': 'application/x-www-form-urlencoded'}
-    , data: 'api_secret=d82051cedc9ad50e6348705c51125be0&number=0032472260967&subject=Test&body=test'};
-    client.post('https://api4.apidaze.io/7b9bc7b4/sms/send', args, function(data, response) {
+        headers: {'Content-type': 'application/x-www-form-urlencoded'}, data: 'api_secret=d82051cedc9ad50e6348705c51125be0&number=0032472260967&subject=Test&body=test'};
+    client.post('https://api4.apidaze.io/7b9bc7b4/sms/send', args, function (data, response) {
         console.log(data);
     });
 };
