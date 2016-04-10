@@ -14,10 +14,10 @@ var ngrok = require('ngrok');
 var bodyParser = require('body-parser');
 var lodash = require('lodash');
 
-var user = 'bob';
-var auth = 'Bearer M2NiOTU3NTAtY2YzMi00MWU4LTk4NjItNWFiOTNlZWJiMWFiMjhlYjQ1Y2QtY2Fj';
 var roomId = 'Y2lzY29zcGFyazovL3VzL1JPT00vMDA2ZTdiMjAtZmQxMS0xMWU1LTg2NDUtOWZjNGE1MmNmMGQ5';
 var client = new Client();
+var user = 'mike';
+var auth = 'Bearer N2I5YzMxMDMtMTQ5NS00N2MwLThkYzItZjU4OWQ3YmFhZjMwNzVmNDljMzYtYzc3';
 
 var teamChanges = [];
 
@@ -124,10 +124,10 @@ var shouldSendNewChanges = function (changes) {
     console.log('files to remove: ', fileChangesToRemove);
 
     var changesToRemove = fileChangesToRemove.map(function (fileChange) {
-        return {user: user, file: fileChange}
+        return {user: user, file: fileChange};
     });
 
-    lodash.pull(teamChanges, changesToRemove);
+    cleanTeamChanges(teamChanges, changesToRemove);
 
     console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
     console.log('Team change list: ', teamChanges);
@@ -176,7 +176,7 @@ var updateTeamChangeList = function (message) {
         return {user: remoteUser, file: fileChange}
     });
 
-    lodash.pull(teamChanges, changesToRemove);
+    cleanTeamChanges(teamChanges, changesToRemove);
 
     console.log('Local team change list updated: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
     console.log('Team change list: ', teamChanges);
@@ -202,5 +202,15 @@ var testSendSms = function () {
         headers: {'Content-type': 'application/x-www-form-urlencoded'}, data: 'api_secret=d82051cedc9ad50e6348705c51125be0&number=0032472260967&subject=Test&body=test'};
     client.post('https://api4.apidaze.io/7b9bc7b4/sms/send', args, function (data, response) {
         console.log(data);
+    });
+};
+
+var cleanTeamChanges = function(teamChanges, changesToRemove) {
+    teamChanges.forEach(function(tChange) {
+        changesToRemove.forEach(function(rChange) {
+            if (tChange.user == rChange.user && tChange.file == rChange.file) {
+                lodash.pull(teamChanges, tChange);
+            }
+        })
     });
 };
