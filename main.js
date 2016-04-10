@@ -14,10 +14,10 @@ var ngrok = require('ngrok');
 var bodyParser = require('body-parser');
 var lodash = require('lodash');
 
+var user = 'bob';
+var auth = 'Bearer M2NiOTU3NTAtY2YzMi00MWU4LTk4NjItNWFiOTNlZWJiMWFiMjhlYjQ1Y2QtY2Fj';
 var roomId = 'Y2lzY29zcGFyazovL3VzL1JPT00vMDA2ZTdiMjAtZmQxMS0xMWU1LTg2NDUtOWZjNGE1MmNmMGQ5';
 var client = new Client();
-var user = 'mike';
-var auth = 'Bearer N2I5YzMxMDMtMTQ5NS00N2MwLThkYzItZjU4OWQ3YmFhZjMwNzVmNDljMzYtYzc3';
 
 var teamChanges = [];
 
@@ -46,6 +46,7 @@ ngrok.connect(
 
             restApp.use(bodyParser.json());
             restApp.post('/', function (req, res) {
+              console.log('Message received from Spark')
                 getMessageFromCisco(req.body.data.id);
             });
             restApp.listen(3033);
@@ -71,9 +72,8 @@ chokidar.watch('.', {ignored: /^\.idea|^\.git/gm}).on('change', function (path, 
                 'text': JSON.stringify(changes)
             };
 
-
             client.post('https://api.ciscospark.com/v1/messages', args, function (data, response) {
-
+                console.log('Message sent: ', response.statusCode);
             });
         }
     });
