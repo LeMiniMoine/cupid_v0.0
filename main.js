@@ -19,7 +19,10 @@ var client = new Client();
 var user = 'mike';
 var auth = 'Bearer N2I5YzMxMDMtMTQ5NS00N2MwLThkYzItZjU4OWQ3YmFhZjMwNzVmNDljMzYtYzc3';
 
-var teamChanges = [];
+var teamChanges = [
+    {user: 'bob', file: 'main.js'}
+];
+var mergeConflicts = [];
 
 var args = {
     headers: {
@@ -41,12 +44,13 @@ ngrok.connect(
             event: 'created',
             filter: 'roomId='.concat(roomId)
         };
+
+        console.log('creating webhook..');
         client.post('https://api.ciscospark.com/v1/webhooks', args, function (data, response) {
-            console.log('Webhook created');
+            console.log('Webhook created: ', response.statusCode);
 
             restApp.use(bodyParser.json());
             restApp.post('/', function (req, res) {
-              console.log('Message received from Spark')
                 getMessageFromCisco(req.body.data.id);
             });
             restApp.listen(3033);
@@ -84,14 +88,25 @@ var alertWindow = null;
 
 app.on('ready', function () {
     mainWindow = new BrowserWindow({
-        frame: false,
-        height: 300,
+        frame: true,
+        height: 800,
         resizable: false,
-        width: 300,
-        show: false
+        width: 400,
+        show: true,
+        title: 'Cupido: a merge conflict manager'
     });
 
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
+
+    mainWindow.on('closed', function () {
+        mainWindow = null;
+    });
+});
+
+app.on('window-all-closed', function () {
+    if (process.platform != 'darwin') {
+        app.quit();
+    }
 });
 
 var getMessageFromCisco = function (messageId) {
@@ -133,11 +148,11 @@ var shouldSendNewChanges = function (changes) {
     console.log('Team change list: ', teamChanges);
     console.log('Should send changes: ', (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove)));
 
-    /*    var mergeConflictChange = checkForMergeConflict(teamChanges);
-     if (true) {
-     testSendSms();
-     //mainWindow.show();
-     }*/
+    var mergeConflictChange = checkForMergeConflict(teamChanges);
+    if (true) {
+        //testSendSms();
+        mainWindow.focus();
+    }
 
     return (!lodash.isEmpty(fileChangesToAdd) || !lodash.isEmpty(fileChangesToRemove));
 };
@@ -183,17 +198,28 @@ var updateTeamChangeList = function (message) {
 };
 
 var checkForMergeConflict = function (teamChangeList) {
-    var filesList = teamChangeList.map(function (obj) {
-        return obj.file
+    mergeConflicts = [];
+    var tempUniqueFilesArray = [];
+    var conflictsFiles = [];
+    var filesList = teamChangeList.map(function (teamChange) {
+        return teamChange.file
     });
-    filesList.forEach(function (element) {
-        if (filesList.filter(function (file) {
-            return file == element
-        }).size > 1) {
-            return teamChangeList.filter(function (change) {
-                return change.user != user;
-            });
+    filesList.forEach(function (fileName) {
+        if (!tempUniqueFilesArray.includes(fileName)) {
+            tempUniqueFilesArray.push(fileName);
+        } else {
+            conflictsFiles.push(fileName);
         }
+    });
+    conflictsFiles.forEach(function (fileName) {
+        mergeConflicts.push({file: fileName, users: teamChangeList.filter(function (teamChange) {
+            return teamChange.file == fileName
+        }).map(function (teamChange) {
+            return teamChange.user
+        })});
+
+        console.log('A MERGE CONFLICT APPEARED!!');
+        console.log('Merge conflicts: ', mergeConflicts);
     });
 };
 
@@ -205,9 +231,9 @@ var testSendSms = function () {
     });
 };
 
-var cleanTeamChanges = function(teamChanges, changesToRemove) {
-    teamChanges.forEach(function(tChange) {
-        changesToRemove.forEach(function(rChange) {
+var cleanTeamChanges = function (teamChanges, changesToRemove) {
+    teamChanges.forEach(function (tChange) {
+        changesToRemove.forEach(function (rChange) {
             if (tChange.user == rChange.user && tChange.file == rChange.file) {
                 lodash.pull(teamChanges, tChange);
             }
